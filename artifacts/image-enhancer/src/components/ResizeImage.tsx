@@ -37,7 +37,7 @@ export default function ResizeImage() {
 
   const [removeWhiteMargins, setRemoveWhiteMargins] = useState(true);
   const [whiteSensitivity, setWhiteSensitivity] = useState<"low" | "medium" | "high">("medium");
-  const [padding, setPadding] = useState("40");
+  const [padding, setPadding] = useState("0");
 
   const [result, setResult] = useState<ResizeImageResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -194,6 +194,16 @@ export default function ResizeImage() {
             <div className="lg:col-span-2">
               <div className="relative rounded-2xl overflow-hidden bg-black/50 border border-white/10 aspect-video flex items-center justify-center">
                 <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain" />
+                <div className="absolute top-4 left-4">
+                  <Badge variant="secondary" className="bg-black/60 backdrop-blur">Original Preview</Badge>
+                </div>
+                {removeWhiteMargins && (
+                  <div className="absolute bottom-4 left-4 right-4 flex justify-center">
+                    <Badge variant="outline" className="bg-black/60 backdrop-blur border-white/15 text-white">
+                      White margins will be removed after resize
+                    </Badge>
+                  </div>
+                )}
                 {resizeMutation.isPending && (
                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center space-y-6 z-10">
                     <Activity className="w-12 h-12 text-primary animate-pulse" />
@@ -293,7 +303,7 @@ export default function ResizeImage() {
                       </p>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Safe padding after crop (px)</Label>
+                      <Label className="text-xs">Safe padding after trim (px)</Label>
                       <Input type="number" value={padding} onChange={(e) => setPadding(e.target.value)}
                         className="bg-black/50 border-white/10 h-9" min="0" max="100" />
                     </div>
@@ -325,10 +335,22 @@ export default function ResizeImage() {
             animate={{ opacity: 1, scale: 1 }}
             className="space-y-8"
           >
-            <div className="relative rounded-2xl overflow-hidden bg-black/50 border border-white/10 aspect-video flex items-center justify-center">
-              <img src={result.previewUrl} alt="Resized" className="max-w-full max-h-full object-contain" />
-              <div className="absolute top-4 right-4">
-                <Badge className="bg-primary/80 backdrop-blur shadow-[0_0_15px_rgba(168,85,247,0.5)]">Resized</Badge>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {preview && (
+                <div className="relative rounded-2xl overflow-hidden bg-black/50 border border-white/10 aspect-video flex items-center justify-center">
+                  <img src={preview} alt="Original" className="max-w-full max-h-full object-contain" />
+                  <div className="absolute top-4 left-4">
+                    <Badge variant="secondary" className="bg-black/60 backdrop-blur">Original</Badge>
+                  </div>
+                </div>
+              )}
+              <div className="relative rounded-2xl overflow-hidden bg-black/50 border border-white/10 aspect-video flex items-center justify-center">
+                <img src={result.previewUrl} alt="Resized" className="max-w-full max-h-full object-contain" />
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-primary/80 backdrop-blur shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                    {result.whiteMarginRemoved ? "Trimmed + Resized" : "Resized"}
+                  </Badge>
+                </div>
               </div>
             </div>
 

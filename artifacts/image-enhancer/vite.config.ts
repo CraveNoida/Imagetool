@@ -15,7 +15,7 @@ const basePath = process.env.BASE_PATH ?? "/";
 const apiProxyTarget =
   process.env.API_PROXY_TARGET ??
   process.env.VITE_API_PROXY_TARGET ??
-  "http://127.0.0.1:8081";
+  "http://127.0.0.1:5050";
 
 export default defineConfig(async () => {
   const replitPlugins = [];

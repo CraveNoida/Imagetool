@@ -138,7 +138,8 @@ router.post("/resize/image", (req, res) => {
 
       const doTrim        = removeWhiteMargins === "true";
       const trimThreshold = getWhiteThreshold(whiteSensitivity ?? "medium");
-      const safePadding   = Math.max(0, Math.min(150, parseInt(padding ?? "40", 10) || 40));
+      const parsedPadding = parseInt(padding ?? "0", 10);
+      const safePadding   = Math.max(0, Math.min(150, Number.isNaN(parsedPadding) ? 0 : parsedPadding));
       const usePng    = outputFormat === "png";
 
       let workingBuffer: Buffer;
