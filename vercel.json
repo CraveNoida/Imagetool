@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm --filter @workspace/image-enhancer run build",
+  "outputDirectory": "artifacts/image-enhancer/dist/public",
+  "installCommand": "pnpm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

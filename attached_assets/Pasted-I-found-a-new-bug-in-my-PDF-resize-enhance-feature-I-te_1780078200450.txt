@@ -1,0 +1,159 @@
+I found a new bug in my PDF resize/enhance feature.
+
+I tested with before and after PDFs.
+
+Problem:
+When I resize or enhance the PDF, the image/content inside each PDF page becomes too large and takes almost the full screen/page. This is incorrect.
+
+The original PDF has proper white margin/padding around the content. But after resize/enhance, the tool crops/removes too much white space and scales the image too much, so the content looks zoomed in.
+
+Required fix:
+Do not make the PDF page image/content take the full screen.
+Preserve the original visual layout, spacing, white margins, and alignment as much as possible.
+
+Important:
+The tool should resize/enhance the page, not zoom into the content.
+
+Correct behavior:
+
+1. Each PDF page should keep the same visual appearance as the original.
+2. The original white margins/padding should be preserved unless the user enables “Remove white margins”.
+3. If “Remove white margins” is enabled, crop only extra unwanted blank space, not the normal page padding.
+4. Do not crop too close to text, icons, borders, diagrams, or headings.
+5. Do not make content touch the edges.
+6. Use “contain” scaling by default, not “cover/fill”.
+7. Add safe padding after crop, for example 40px to 80px.
+8. Keep the final page size exactly as selected by the user, for example 1440 x 1800.
+9. Keep white background.
+10. Keep all PDF pages in correct order.
+
+Main bug to fix:
+The current code is probably doing one of these wrong things:
+
+* Cropping all white margins automatically every time.
+* Using object-fit: cover behavior.
+* Scaling the cropped image to fill the full page.
+* Removing the original page padding too aggressively.
+* Drawing the page image with width = outputWidth and height = outputHeight after crop without preserving visual spacing.
+
+Required scaling logic:
+Use object-fit: contain by default.
+
+For each PDF page:
+
+* Render the page to a high-quality canvas.
+* If “Remove white margins” is OFF:
+
+  * Do not crop the rendered page.
+  * Resize the full rendered page into the target canvas using contain scaling.
+* If “Remove white margins” is ON:
+
+  * Detect only large extra blank margins.
+  * Crop carefully using tolerance.
+  * Add safe padding after crop.
+  * Then resize using contain scaling.
+* Never use cover/fill scaling unless the user selects a separate “Fill page / crop edges” mode.
+
+Correct contain logic:
+
+const scale = Math.min(
+outputWidth / sourceCanvas.width,
+outputHeight / sourceCanvas.height
+);
+
+const drawWidth = sourceCanvas.width * scale;
+const drawHeight = sourceCanvas.height * scale;
+
+const x = (outputWidth - drawWidth) / 2;
+const y = (outputHeight - drawHeight) / 2;
+
+ctx.fillStyle = "#ffffff";
+ctx.fillRect(0, 0, outputWidth, outputHeight);
+
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = "high";
+
+ctx.drawImage(sourceCanvas, x, y, drawWidth, drawHeight);
+
+Important:
+Do not use this by default:
+
+ctx.drawImage(sourceCanvas, 0, 0, outputWidth, outputHeight);
+
+because it forces the image to fill the whole page and can distort/zoom the content.
+
+White margin crop logic:
+
+* “Remove white margins before resizing” should be optional.
+* Default should be OFF for PDF resize/enhance, because many PDFs already have intentional white margins.
+* If enabled, use safe crop:
+
+  * Detect near-white pixels using threshold.
+  * Find content bounding box.
+  * Add safe padding after crop.
+  * Minimum padding: 40px.
+  * Recommended padding: 60px.
+  * Never crop to the exact content boundary.
+* Add sensitivity options:
+  Low / Medium / High
+* Default sensitivity: Medium.
+* Add a preview option if possible.
+
+Enhance PDF behavior:
+When enhancing PDF:
+
+* Do not crop or zoom the page automatically.
+* Enhancement should improve quality, sharpness, contrast, or clarity only.
+* It should not change the page layout or content size.
+* Preserve original margins and page layout.
+
+Resize PDF behavior:
+When resizing PDF:
+
+* Resize the full page into the selected output size.
+* Preserve the original layout.
+* Do not automatically zoom the content.
+* Keep margins unless the user manually enables margin removal.
+
+Image resize behavior:
+For normal image resize:
+
+* Add optional “Remove white margins before resizing”.
+* But do not crop too aggressively.
+* Add safe padding after crop.
+* Default can be ON for images, but OFF for PDFs.
+
+UI changes:
+Add these options:
+
+1. Preserve original margins — default ON
+2. Remove white margins before resizing — default OFF for PDF, optional
+3. Crop sensitivity — Low / Medium / High
+4. Safe padding after crop — default 60px
+5. Scaling mode:
+
+   * Contain / Preserve full page — default
+   * Fill page / crop edges — optional advanced mode
+
+Warning text:
+Show this warning for PDF resize/enhance:
+“After resizing or enhancing, PDF text may become non-selectable because pages are converted into images.”
+
+Also fix:
+
+* Image enhancer is currently not working. Debug and fix it completely.
+* Check upload, preview, processing, enhancement, and download.
+* Fix all console errors.
+* Do not break PDF resize, PDF enhance, image resize, or existing UI.
+
+Final output:
+
+1. Fix the PDF zoom/full-screen image bug.
+2. Preserve original margins by default.
+3. Make auto white margin removal optional and safe.
+4. Use contain scaling by default.
+5. Fix the broken image enhancer.
+6. Test image resize, PDF resize, image enhancer, and PDF enhancer.
+7. Give me the complete updated code.
+8. Tell me exactly which files and functions were changed.
+9. Explain what bugs were found and how you fixed them.

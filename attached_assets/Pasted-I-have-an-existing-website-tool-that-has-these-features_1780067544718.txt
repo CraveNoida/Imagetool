@@ -1,0 +1,143 @@
+I have an existing website/tool that has these features:
+
+1. Image enhancer
+2. PDF enhancer
+3. Image resize
+4. PDF resize
+
+Right now there are bugs and improvements needed.
+
+Main issues:
+
+1. Image enhancer is not working
+
+* The image enhancer feature was working before, but now it is not working.
+* Please debug and fix the complete image enhancer flow.
+* Check upload, preview, enhancement processing, output preview, and download.
+* Make sure it works for JPG, JPEG, PNG, and WEBP.
+* Do not break PDF enhancer, image resize, or PDF resize while fixing this.
+
+2. Auto-remove white space before resizing
+   When the user uploads an image or PDF for resizing, the tool currently resizes the whole image/page including white empty space around the sides.
+
+I want this behavior:
+
+Before resizing:
+
+* Detect extra white space / blank margins around the image or PDF page.
+* Automatically crop/remove that white space from all sides.
+* Then resize the actual content to the target size.
+* The final output should have the actual content properly resized, not the unnecessary white borders.
+
+This should work for:
+
+* Single image resize
+* Multi-page PDF resize
+* Image-based PDF pages
+
+Expected resize workflow:
+
+For image resize:
+
+1. User uploads image.
+2. Detect white/near-white empty margins around the image.
+3. Crop the white margins automatically.
+4. Resize the cropped image to the user’s selected output width and height.
+5. Keep output sharp and high quality.
+6. Show preview and download option.
+
+For PDF resize:
+
+1. User uploads PDF.
+2. For every PDF page, render the page to a high-quality canvas.
+3. Detect and remove white/near-white empty margins from each rendered page.
+4. Resize the cropped page image to the user’s selected width and height.
+5. Keep each final page exactly the target size.
+6. Keep page background white.
+7. Keep all pages in correct order.
+8. Export as PDF.
+9. Show warning:
+   “After resizing, PDF text may become non-selectable because pages are converted into images.”
+
+White space detection requirements:
+
+* Detect pure white and near-white backgrounds.
+* Use a tolerance value because some pages may have off-white backgrounds.
+* Add a user option:
+  “Remove white margins before resizing”
+* This option should be ON by default.
+* Add another option:
+  “White detection sensitivity”
+  with values:
+  Low, Medium, High
+* Medium should be default.
+* Do not crop actual content, icons, text, shadows, borders, or diagrams.
+* Add safe padding after cropping, for example 10px to 30px, so content does not touch the edges.
+* Add a padding option if possible.
+
+Suggested algorithm for auto-crop white margins:
+
+* Read canvas pixel data using getImageData().
+* Treat pixels as white if R, G, and B are greater than a threshold.
+* Example thresholds:
+  Low sensitivity: 250
+  Medium sensitivity: 245
+  High sensitivity: 235
+* Also consider alpha/transparency as white.
+* Scan from top, bottom, left, and right to find the first non-white pixel.
+* Create a cropped canvas using that bounding box.
+* Add safe padding around the crop.
+* Then resize the cropped canvas to the final target size.
+
+Important:
+
+* The crop should happen BEFORE resizing.
+* Do not resize first and then crop.
+* Cropping should be optional but enabled by default.
+
+Quality requirements:
+
+* Do not make text blurry.
+* Render PDF pages at high scale, like 2x or 3x, before cropping/resizing.
+* Use high-quality canvas settings:
+  imageSmoothingEnabled = true
+  imageSmoothingQuality = "high"
+* For JPEG output, use quality 0.98 or 1.0.
+* Add PNG output option for maximum quality.
+* Keep white background.
+* Keep all pages in correct order.
+
+Bug fixing requirements:
+
+* Fix the broken image enhancer completely.
+* Check console errors and fix them.
+* Check missing imports, broken function names, wrong event listeners, wrong file handling, broken canvas logic, broken download logic, and broken state updates.
+* Make sure all buttons work.
+* Make sure upload, preview, processing, and download work properly.
+* Make sure loading/progress states work.
+* Make sure unsupported files show proper error messages.
+* Make sure large files do not crash the website.
+* Make sure the existing design is not broken.
+* Make sure the website is responsive on mobile, tablet, and desktop.
+
+Do not break these existing features:
+
+* PDF enhancer
+* Image resize
+* PDF resize
+* Existing UI design
+* Existing routing/layout
+* Existing download buttons
+
+Final task:
+
+1. Find and fix all bugs.
+2. Fix image enhancer.
+3. Add auto white margin removal before image resize.
+4. Add auto white margin removal before PDF resize.
+5. Add quality options: JPEG quality and PNG output.
+6. Add warning for image-based PDF output.
+7. Test all features.
+8. Give me the complete updated code.
+9. Tell me exactly which files and functions were changed.
+10. Explain what bugs were found and how they were fixed.

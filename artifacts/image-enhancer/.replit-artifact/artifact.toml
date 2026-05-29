@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AI Image Quality Enhancer"
+version = "1.0.0"
+id = "artifacts/image-enhancer"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19415
+
+[services.development]
+run = "pnpm --filter @workspace/image-enhancer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/image-enhancer", "run", "build" ]
+publicDir = "artifacts/image-enhancer/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19415"
+BASE_PATH = "/"
