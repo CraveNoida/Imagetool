@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter @workspace/image-enhancer run build",
   "outputDirectory": "artifacts/image-enhancer/dist/public",
@@ -6,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://imagetool-api.onrender.com/api/:path*"
+      "destination": "https://YOUR-RENDER-BACKEND-URL.onrender.com/api/:path*"
     },
     {
       "source": "/((?!api/).*)",
